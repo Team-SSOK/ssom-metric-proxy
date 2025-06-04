@@ -1,0 +1,11 @@
+services:
+  fastapi:
+    build:
+      context: ./SSOM_metric_proxy
+      dockerfile: Dockerfile
+    container_name: ssom-metric-proxy
+    ports:
+      - "8000:8000"
+    environment:
+      - TARGET_WEBHOOK_URL=https://webhook.site/9d27590d-704c-43d2-97a7-bc5a85d39aad
+    restart: always
