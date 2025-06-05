@@ -4,15 +4,22 @@ import os
 from json_parser import parse_alert_webhook
 app = FastAPI()
 
-TARGET_WEBHOOK_URL = os.getenv("TARGET_WEBHOOK_URL")
+TARGET_WEBHOOK_URLS = os.getenv("TARGET_WEBHOOK_URL", "")
+WEBHOOK_URL_LIST = [url.strip() for url in TARGET_WEBHOOK_URLS.split(",") if url.strip()]
 
 @app.post("/receive-alert-webhook")
 async def receive_grafana_webhook(request: Request):
     data = await request.json()
     payload = parse_alert_webhook(data)
+    sent_urls = []
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(TARGET_WEBHOOK_URL, json=payload)
-        response.raise_for_status()
+        for url in WEBHOOK_URL_LIST:
+            response = await client.post(url, json=payload)
+            response.raise_for_status()
+            sent_urls.append(url)
 
-    return {"sent": True, "forwarded_count": len(payload.get("alerts", []))}
+    return {
+        "isSuccess": True,
+        "forwarded_urls": sent_urls
+    }
