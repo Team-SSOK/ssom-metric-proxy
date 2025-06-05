@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 import httpx
 import os
+import json
 import logging
 from json_parser import parse_alert_webhook
 app = FastAPI()
@@ -24,9 +25,13 @@ async def receive_grafana_webhook(request: Request):
             except Exception as e:
                 logging.error(f"Webhook 전송 실패: url={url} error={str(e)}")
                 failed_urls.append({"url": url, "error": str(e)})
-
-    return {
+    
+    result = {
         "isSuccess": len(failed_urls) == 0,
         "forwarded_urls": sent_urls,
         "failed_urls": failed_urls
     }
+
+    logging.info(f"return 값 로그: {json.dumps(result, ensure_ascii=False)}")
+    
+    return result
