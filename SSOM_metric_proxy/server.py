@@ -4,7 +4,10 @@ import os
 import json
 import logging
 from json_parser import parse_alert_webhook
+
 app = FastAPI()
+
+logging.basicConfig(level=logging.INFO)
 
 TARGET_WEBHOOK_URLS = os.getenv("TARGET_WEBHOOK_URL", "")
 WEBHOOK_URL_LIST = [url.strip() for url in TARGET_WEBHOOK_URLS.split(",") if url.strip()]
@@ -32,6 +35,6 @@ async def receive_grafana_webhook(request: Request):
         "failed_urls": failed_urls
     }
 
-    logging.info(f"return 값 로그: {json.dumps(result, ensure_ascii=False)}")
+    logging.info(f"return 값: {json.dumps(result, ensure_ascii=False)}")
     
     return result
